@@ -1,8 +1,8 @@
 # 🧭 Lockard LLC
 
-The **Lockard LLC** is a memory-first environment for PetPass, internal portals, and R&D initiatives like dvoGPT. It unifies human operators and Codex agents under a consistent Linux-style layout (WSL/macOS/cloud friendly) with Codex enforcing truth-first development.
+The **Lockard LLC** is a memory-first environment for PetPass, internal portals, and R&D initiatives like dvoGPT. It unifies human operators and AI agents under a consistent Linux-style layout (WSL/macOS/cloud friendly) with AI agents enforcing truth-first development.
 
-Automation, documentation, and app code all share this repository so changes to policy or UI stay in sync with the Codex knowledge graph.
+Automation, documentation, and app code all share this repository so changes to policy or UI stay in sync with the AI agent knowledge graph.
 
 ---
 
@@ -18,7 +18,7 @@ lockard-llc/
 │
 ├── docs/                 # Canonical documentation (handbook, partners, tech)
 ├── ops/                  # Policies, checklists, compliance templates
-├── codex/                # Memory/, context/, tasks/, config/ for agents
+├── ai/                   # Memory/, context/, tasks/, config/ for agents
 ├── scripts/              # Automation scripts (bundle-context, memory-update, docpack)
 ├── data/                 # Sanitized data drops
 ├── var/                  # Logs, scratch space
@@ -29,7 +29,7 @@ lockard-llc/
 └── ~/.hidden/            # Stash for tool caches (.cache, .local, .npm, .config, .vscode-server symlink here)
 ```
 
-> See [`codex/config/RULES.md`](codex/config/RULES.md) and [`AGENTS.md`](AGENTS.md) for memory precedence, safety rules, and automation etiquette.
+> See [`ai/codex/config/RULES.md`](ai/codex/config/RULES.md), [`ai/gemini/config/RULES.md`](ai/gemini/config/RULES.md) and [`AGENTS.md`](AGENTS.md) for memory precedence, safety rules, and automation etiquette.
 
 ---
 
@@ -37,13 +37,13 @@ lockard-llc/
 
 ### Context-First Development
 
-- Agents and humans read `codex/memory/` first, then docs, then generated context.
+- Agents and humans read `ai/codex/memory/` and `ai/gemini/memory/` first, then docs, then generated context.
 - Conflicts between docs and memory are **escalated**, not overwritten.
-- Every change lands in `codex/memory/99_changelog.md` for traceability.
+- Every change lands in `ai/codex/memory/99_changelog.md` and `ai/gemini/memory/99_changelog.md` for traceability.
 
-### Codex Bundle
+### AI Agent Bundle
 
-- `scripts/bundle-context.js` produces `codex/context/bundle.json`, merging memory, docs, and config into a single knowledge graph for automation or manual review.
+- `scripts/bundle-context.js` produces `ai/codex/context/bundle.json` and `ai/gemini/context/bundle.json`, merging memory, docs, and config into a single knowledge graph for automation or manual review.
 
 ### Session Hygiene
 
@@ -60,7 +60,7 @@ lockard-bundle
 
 - Every doc starts with `Owner` + `Visibility` (Public | Partner-only | Internal).
 - No PII; Case IDs only (`PP-LEX-YYMM-####` for PetPass).
-- Net-new policies go in `docs/` and must update `codex/memory/`.
+- Net-new policies go in `docs/` and must update `ai/codex/memory/` and `ai/gemini/memory/`.
 
 ---
 
@@ -70,7 +70,7 @@ lockard-bundle
 - **Lockard Internal Portal (next-gen)**: prior `admin/portal/{server,employee,admin}` workspaces were removed on 2025-11-12; the next iteration will be re-scaffolded once the new UX brief lands.
 - **dvoGPT R&D**: prototyping area under `apps/` (documented in `apps/README.md` as projects spin up).
 
-All apps share themes, packages, and Codex memory so UI updates reflect policy, and documentation stays in lockstep with tooling.
+All apps share themes, packages, and AI agent memory so UI updates reflect policy, and documentation stays in lockstep with tooling.
 
 ---
 
@@ -89,15 +89,15 @@ The shell also auto-rebuilds symlinks for `.cache`, `.local`, etc. so stray fold
 
 This repo contains lightweight automation scripts in `scripts/` intended to be safe, readable, and easy to run locally or in CI. Key scripts and their purpose:
 
-- `scripts/bundle-context.js` — compiles `codex/memory/` and `docs/` into `codex/context/bundle.json` used by agents and automation. Run as part of session end or CI to produce the latest knowledge bundle.
-- `scripts/memory-update.js` — helper utilities for session harvesting and writing structured session notes into `codex/memory/sessions/`.
+- `scripts/bundle-context.js` — compiles `ai/codex/memory/`, `ai/gemini/memory/` and `docs/` into `ai/codex/context/bundle.json` and `ai/gemini/context/bundle.json` used by agents and automation. Run as part of session end or CI to produce the latest knowledge bundle.
+- `scripts/memory-update.js` — helper utilities for session harvesting and writing structured session notes into `ai/codex/memory/sessions/` and `ai/gemini/memory/sessions/`.
 - `scripts/apply-docpack.js` — splits heredoc docpacks into files under `docs/` for bulk documentation imports.
-- `scripts/autobundle-daemon.sh` — a small watcher that rebundles the Codex bundle on file changes (default cadence ≈2m). It's safe to run in a local development machine or a lightweight VM.
+- `scripts/autobundle-daemon.sh` — a small watcher that rebundles the AI agent bundle on file changes (default cadence ≈2m). It's safe to run in a local development machine or a lightweight VM.
 
 Typical usage examples:
 
 ```bash
-# create the codex bundle (one-off)
+# create the AI agent bundle (one-off)
 node scripts/bundle-context.js
 
 # run autobundle in a background terminal for fast local feedback
@@ -131,7 +131,7 @@ Copy these commands to get a local dev environment running (Linux-like shell):
 # install dependencies (Corepack enabled)
 yarn install
 
-# create the Codex bundle used by agents and automation
+# create the AI agent bundle used by agents and automation
 node scripts/bundle-context.js
 
 # run autobundle in background (developer convenience)
@@ -160,7 +160,7 @@ yarn workspace lockard-server dev
 Before you open a PR, please:
 
 1. Run tests and linters locally: `yarn test && yarn lint`.
-2. Run `node scripts/bundle-context.js` if you modified `codex/memory/` or `docs/` and include the updated bundle only when automation depends on it.
+2. Run `node scripts/bundle-context.js` if you modified `ai/codex/memory/`, `ai/gemini/memory/` or `docs/` and include the updated bundle only when automation depends on it.
 3. Keep PRs small and focused (target ≤200 LOC). Explain the developer contract in the PR description: inputs, outputs, error modes, and any migration steps.
 4. Use Conventional Commits for commit messages and include a short changelog note if you updated memory/docs.
 5. If your change affects architecture or policy surfaces, add an ADR under `docs/tech/adr/`.
@@ -214,7 +214,7 @@ The `docs/` directory is the canonical place for public-facing and internal docu
 
 1. Draft new content in `docs/` under the appropriate subfolder (e.g., `docs/tech/`, `docs/handbook/`).
 2. Run `node scripts/apply-docpack.js` if you have a docpack to import structured content.
-3. Run `node scripts/bundle-context.js` or rely on the `autobundle-daemon.sh` to keep `codex/context/bundle.json` up to date.
+3. Run `node scripts/bundle-context.js` or rely on the `autobundle-daemon.sh` to keep `ai/codex/context/bundle.json` and `ai/gemini/context/bundle.json` up to date.
 
 ```bash
 # quick search across docs
@@ -226,9 +226,9 @@ bin/docs open
 
 ### Safety & deployment checklist (quick)
 
-- Run `node scripts/bundle-context.js` and confirm `codex/context/bundle.json` was updated.
+- Run `node scripts/bundle-context.js` and confirm `ai/codex/context/bundle.json` and `ai/gemini/context/bundle.json` was updated.
 - Run `yarn test` and `yarn lint` locally.
-- Ensure any environment changes are captured in `codex/config/env.schema.ts` (see codex memory for env guidance).
+- Ensure any environment changes are captured in `ai/codex/config/env.schema.ts` or `ai/gemini/config/env.schema.ts` (see AI agent memory for env guidance).
 
 ---
 
@@ -244,7 +244,7 @@ bin/docs open
 
 ## 🚀 Philosophy
 
-1. **Memory First** — Codex and humans share the same source of truth.
+1. **Memory First** — AI agents and humans share the same source of truth.
 2. **Safety by Default** — Privacy, language, and retention policies are non-negotiable.
 3. **Automation with Oversight** — Every agent action is explainable and reversible.
 
